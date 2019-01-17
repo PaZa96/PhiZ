@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Detect-Facial-Features-master1", "Detect-Facial-Features-master1.pyproj", "{BC6510E9-7242-4026-BD66-0414F5DF0F05}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "PhiZ", "PhiZ.pyproj", "{B71C2EAB-967F-45D4-AC1C-9EEC654952AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,13 +11,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BC6510E9-7242-4026-BD66-0414F5DF0F05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC6510E9-7242-4026-BD66-0414F5DF0F05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B71C2EAB-967F-45D4-AC1C-9EEC654952AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B71C2EAB-967F-45D4-AC1C-9EEC654952AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {6C7C4C8A-C144-46BF-9007-E9E79A0F6FFA}
+		SolutionGuid = {D10341DB-9E08-4AA0-BCE1-DAEBCA934397}
 	EndGlobalSection
 EndGlobal

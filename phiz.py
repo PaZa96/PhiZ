@@ -9,6 +9,7 @@ import dlib
 import imutils
 import os
 import json
+import features
 
 facial_features_cordinates = {}
 
@@ -49,34 +50,6 @@ def shape_to_numpy_array(shape, dtype="int"):
     # вернуть список (x, y) -координат
     return coordinates
 
-def face_features_length(x, y): 
-
-    distance = hypot(x[0] - y[0], x[1] - y[1])
-    print(distance)
-
-    return distance
-
-def coordinates_center_line(x, y):
-
-    coordinates = []
-
-    dx = int((x[0] + y[0])/2)
-    dy = int((x[1] + y[1])/2)
-    
-    coordinates.append(dx)
-    coordinates.append(dy)
-
-    print(coordinates)
-
-    return coordinates
-
-def s_quadrilateral(a, b, c, d):
-
-    p = (a + b + c + d) / 2
-
-    s = math.sqrt((p-a)*(p-b)*(p-c)*(p-d))
-
-    return s
 
 def draw_face_line(point_one, point_two, overlay, pts): 
 
@@ -105,18 +78,18 @@ def draw_face_features(facial_features_name, overlay):
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l - 1])
                 ptB = tuple(pts[l])
-                cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
+            #    cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
 
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l])
-                cv2.circle(overlay, ptA, 0, (19,19,19), 3)
+                cv2.circle(overlay, ptA, 0, (50, 255, 50), 3)
                 
 
         elif name == "Nose":
 
             coordinates_point_nose_rigth = []
             coordinates_point_nose_left = []
-            cn = coordinates_center_line(shape[30],coordinates_center_line(shape[31], shape[35])) 
+            cn = features.coordinates_center_line(shape[30],features.coordinates_center_line(shape[31], shape[35])) 
 
             coordinates_point_nose_rigth.append(int((round(shape[35][0] - shape[34][0])) + shape[35][0]))
             coordinates_point_nose_rigth.append(cn[1])
@@ -129,44 +102,49 @@ def draw_face_features(facial_features_name, overlay):
                 ptC = tuple(pts[3])
                 ptD = tuple(pts[8])
 
-                cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
-                cv2.line(overlay, ptC, ptD, (50, 255, 50), 2)
+             #   cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
+              #  cv2.line(overlay, ptC, ptD, (50, 255, 50), 2)
 
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l])
                 
-                cv2.circle(overlay, ptA, 0, (19,19,19), 3)
-                cv2.circle(overlay, tuple(coordinates_point_nose_rigth), 0, (19,19,19), 3)
-                cv2.circle(overlay, tuple(coordinates_point_nose_left), 0, (19,19,19), 3)
+                cv2.circle(overlay, ptA, 0, (50, 255, 50), 3)
+                cv2.circle(overlay, tuple(coordinates_point_nose_rigth), 0, (50, 255, 50), 3)
+                cv2.circle(overlay, tuple(coordinates_point_nose_left), 0, (50, 255, 50), 3)
 
         elif name == "Mouth":
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l-1])
                 ptB = tuple(pts[l])
-                cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
+               # cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
 
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l])
-                cv2.circle(overlay, ptA, 0, (19,19,19), 3)
+                cv2.circle(overlay, ptA, 0, (50, 255, 50), 3)
+
 
 
         else :
             for l in range(1, len(pts)):
                 ptA = tuple(pts[l-1])
                 ptB = tuple(pts[l])
-                cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
+                #cv2.line(overlay, ptA, ptB, (50, 255, 50), 2)
 
             for l in range(0, len(pts)):
                 ptA = tuple(pts[l])
-                cv2.circle(overlay, ptA, 0, (19,19,19), 3)
+                cv2.circle(overlay, ptA, 0, (50, 255, 50), 3)
 
-                center_eyebrow_point = coordinates_center_line(shape[17],shape[21])
+                center_eyebrow_point = features.coordinates_center_line(shape[17],shape[21])
+                left_center_eyebrow_point = features.coordinates_center_line(shape[17],center_eyebrow_point)
+                right_center_eyebrow_point = features.coordinates_center_line(center_eyebrow_point,shape[21])
 
-                cv2.circle(overlay, tuple(center_eyebrow_point), 0, (19,19,19), 3)
+                cv2.circle(overlay, tuple(center_eyebrow_point), 0, (50, 255, 50), 3)
+                cv2.circle(overlay, tuple(left_center_eyebrow_point), 0, (50, 255, 50), 3)
+                cv2.circle(overlay, tuple(right_center_eyebrow_point), 0, (50, 255, 50), 3)
 
-    draw_face_line(51, 57, overlay, pts)
-    draw_face_line(21, 22, overlay, pts)
-    draw_face_line(39, 42, overlay, pts)
+   # draw_face_line(51, 57, overlay, pts)
+   # draw_face_line(21, 22, overlay, pts)
+    #draw_face_line(39, 42, overlay, pts)
 
 
 # форма лица -----------------------------------------------------
@@ -221,10 +199,10 @@ def visualize_facial_landmarks(image, shape, colors=None, alpha=0.75):
 
 detector = dlib.get_frontal_face_detector()
 
-predictor = dlib.shape_predictor('C:/Users/Zhavoronok/Desktop/Detect-Facial-Features-master/shape_predictor_68_face_landmarks.dat')
+predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('C:/Users/Zhavoronok/Desktop/Detect-Facial-Features-master/images/image9.jpg')
+image = cv2.imread('../PhiZ/images/image5.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -233,31 +211,54 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 rects = detector(gray, 1)
 
 
-def eyebrow(shape, left_point, right_point):
-
+def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point):
     print("Eyebrow horizontal length")
-    eyebrow_width = face_features_length(shape[left_point], shape[right_point]) #вычисляем длину брови 
-    print(eyebrow_width)
+    l_eyebrow_width = features.face_features_length(shape[l_left_point], shape[l_right_point]) #вычисляем длину левой брови 
+    r_eyebrow_width = features.face_features_length(shape[r_left_point], shape[r_right_point]) #вычисляем длину правой брови
 
-    center_eyebrow_point = coordinates_center_line(shape[left_point],shape[right_point]) # находим центр отрезка между началом и концом брови
+    center_l_eyebrow_point = features.coordinates_center_line(shape[l_left_point],shape[l_right_point]) # находим координаты центра отрезка между крайними точками правой брови
+    center_r_eyebrow_point = features.coordinates_center_line(shape[r_left_point],shape[r_right_point]) # находим координаты центра отрезка между крайними точками левой брови
 
-    point = left_point + 1
-    length_between_points = []
+    left_center_l_eyebrow_point = features.coordinates_center_line(shape[l_left_point],center_l_eyebrow_point)
+    right_center_l_eyebrow_point = features.coordinates_center_line(center_l_eyebrow_point,shape[l_right_point])
 
-    while point < right_point: # находим длину между центральной точкой и точками на брови
-        length = face_features_length(shape[point], center_eyebrow_point)
-        length_between_points.append(length)
-        point = point + 1
+    b1 = features.face_features_length(left_center_l_eyebrow_point, center_l_eyebrow_point)
+    b2 = features.face_features_length(center_l_eyebrow_point, shape[l_left_point+2])
 
-    left_section = length_between_points[0] 
-    right_section = length_between_points[2]
+    b = b2 / b1
 
-    left_coefficient = (left_section / length_between_points[1]) 
-    right_coefficient = (right_section / length_between_points[1]) 
+    left_center_r_eyebrow_point = features.coordinates_center_line(shape[r_left_point],center_r_eyebrow_point)
+    right_center_r_eyebrow_point = features.coordinates_center_line(center_r_eyebrow_point,shape[r_right_point])
 
-    print("eyebrow coeff")
-    print( right_section / left_section  )
-    
+    l_left_triangle = features.s_triangle(shape[l_left_point], shape[l_left_point + 1], center_l_eyebrow_point)
+    l_right_triangle = features.s_triangle(left_center_l_eyebrow_point, shape[l_left_point + 2], right_center_l_eyebrow_point)
+
+    r_left_triangle = features.s_triangle(left_center_r_eyebrow_point, shape[r_right_point - 2], right_center_r_eyebrow_point)
+    r_right_triangle = features.s_triangle(shape[r_right_point], shape[r_right_point - 1], center_r_eyebrow_point)
+
+    s1 = l_left_triangle + r_right_triangle
+    s2 = l_right_triangle + r_left_triangle
+
+    s =  s1 / s2
+
+    print(s)
+    print(b)
+
+    eyebrow_variables = [s,b]
+
+    print("Eyebrow coefficient _________")
+    return s
+
+def eyebrow(shape):
+
+    eyebrow_type = type_eyebrow(shape, 17, 21, 22, 26)
+    print("Left eyebrow coefficient")
+    print(eyebrow_type)
+
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        for p in data['Face']['Eyebrows']:
+
 
 
 
@@ -269,17 +270,17 @@ def nose(shape):
 
     coordinates_point_nose_rigth = []
     coordinates_point_nose_left = []
-    cn = coordinates_center_line(shape[30],coordinates_center_line(shape[31], shape[35])) 
+    cn = features.coordinates_center_line(shape[30],features.coordinates_center_line(shape[31], shape[35])) 
 
     coordinates_point_nose_rigth.append(int((round(shape[35][0] - shape[34][0])) + shape[35][0]))
     coordinates_point_nose_rigth.append(cn[1])
     coordinates_point_nose_left.append(int(round(shape[31][0] - (shape[32][0] - shape[31][0]))))
     coordinates_point_nose_left.append(cn[1])
 
-    nose_length_horizontal = face_features_length(coordinates_point_nose_left, coordinates_point_nose_rigth)
+    nose_length_horizontal = features.face_features_length(coordinates_point_nose_left, coordinates_point_nose_rigth)
     print("---------------------------")
     print("length between nose and center of mouth")
-    point_center_mouth = face_features_length(shape[33], coordinates_center_line(shape[62], shape[66]))
+    point_center_mouth = features.face_features_length(shape[33], features.coordinates_center_line(shape[62], shape[66]))
     print("---------------------------")
 
     print("Calculated Nose width coefficient")
@@ -297,21 +298,21 @@ def mouth(shape):
     # определяем размеры рта и губ
 
     print("Mouth horizontal length")
-    mouth_lenght_horizontal = face_features_length(shape[48], shape[54])
+    mouth_lenght_horizontal = features.face_features_length(shape[48], shape[54])
     print("---------------------------")
     print("Mouth vertical length")
-    mouth_lenght_vertical = face_features_length(shape[51], shape[57])
+    mouth_lenght_vertical = features.face_features_length(shape[51], shape[57])
     print("---------------------------")
     print("Lips1 vertical length")
-    lip1_vertical_length  = face_features_length(shape[51], shape[62])
+    lip1_vertical_length  = features.face_features_length(shape[51], shape[62])
     print("---------------------------")
     print("Lips2 vertical length")
-    lip2_vertical_length = face_features_length(shape[66], shape[57])
+    lip2_vertical_length = features.face_features_length(shape[66], shape[57])
     print("---------------------------")
 
     # форма лица -----------------------------------------------------
-    cw1 = face_features_length(shape[2], shape[14])
-    cw2 = face_features_length(shape[4], shape[12])
+    cw1 = features.face_features_length(shape[2], shape[14])
+    cw2 = features.face_features_length(shape[4], shape[12])
     print("---------------------------")
 
     dcw = (cw1 + cw2) / 2
@@ -319,7 +320,7 @@ def mouth(shape):
     sdf = dcw / mouth_lenght_horizontal
 
     print("ertjyjtyjkyrtuktk")
-    print(sdf)
+    
 
 # цикл по распознаванию лиц
 for (i, rect) in enumerate(rects):
@@ -331,16 +332,16 @@ for (i, rect) in enumerate(rects):
 
 # форма лица -----------------------------------------------------
 print("face form")
-face_features_length(shape[0], shape[16])
-m1 = face_features_length(shape[2], shape[14])
-face_features_length(shape[3], shape[13])
-m2 = face_features_length(shape[4], shape[12])
+features.face_features_length(shape[0], shape[16])
+m1 = features.face_features_length(shape[2], shape[14])
+features.face_features_length(shape[3], shape[13])
+m2 = features.face_features_length(shape[4], shape[12])
 print("---------------------------")
 print("Eyebrow lenght")
-face_features_length(shape[21], shape[22])
+features.face_features_length(shape[21], shape[22])
 print("---------------------------")
 print("Eye lenght")
-face_features_length(shape[39], shape[42])
+features.face_features_length(shape[39], shape[42])
 print("---------------------------")
 
 
@@ -378,7 +379,7 @@ mouth_list = {}
 #     if min(mouth_list, key=mouth_list.get) <= int(p['rate_max']) and min(mouth_list, key=mouth_list.get) >= int(p['rate_min']):
 #            print('Описание: ' + p['description'])
 
-eyebrow(shape, 17,21)
+eyebrow(shape)
 nose(shape)
 mouth(shape)
 

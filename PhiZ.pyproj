@@ -3,15 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0e83cc7a-4500-45a9-9321-5b135a197e4e}</ProjectGuid>
+    <ProjectGuid>{b71c2eab-967f-45d4-ac1c-9eec654952aa}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>detect_face_features.py</StartupFile>
+    <StartupFile>phiz.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <InterpreterId>Global|PythonCore|3.7-32</InterpreterId>
+    <InterpreterId />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
@@ -19,17 +19,31 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="images\image_1.jpg" />
-    <Content Include="requirements.txt" />
+    <Compile Include="features.py" />
+    <Compile Include="phiz.py" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="detect_face_features.py" />
+    <Content Include="face-features.json" />
+    <Content Include="images\image.jpg" />
+    <Content Include="images\image1.jpg" />
+    <Content Include="images\image10.jpg" />
+    <Content Include="images\image11.jpg" />
+    <Content Include="images\image12.jpg" />
+    <Content Include="images\image13.jpg" />
+    <Content Include="images\image14.jpg" />
+    <Content Include="images\image15.jpg" />
+    <Content Include="images\image2.jpg" />
+    <Content Include="images\image3.jpg" />
+    <Content Include="images\image4.jpg" />
+    <Content Include="images\image5.jpg" />
+    <Content Include="images\image6.jpg" />
+    <Content Include="images\image7.jpg" />
+    <Content Include="images\image8.jpg" />
+    <Content Include="images\image9.jpg" />
+    <Content Include="shape_predictor_68_face_landmarks.dat" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="images" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterpreterReference Include="Global|PythonCore|3.7-32" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
