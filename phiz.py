@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image5.jpg')
+image = cv2.imread('../PhiZ/images/image8.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -210,6 +210,21 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # обнаружение лиц на изображении в градациях серого
 rects = detector(gray, 1)
 
+
+def height_eyebrow(shape, left_point, right_point, point_eye):
+
+    center_eyebrow_point = features.coordinates_center_line(shape[left_point],shape[right_point]) # находим координаты центра отрезка между крайними точками правой брови
+    height = features.face_features_length(center_eyebrow_point, shape[point_eye])
+
+    return height
+
+def height_eye(shape, left_point_up_eye, right_point_up_eye, left_point_down_eye, right_point_down_eye):
+
+    center_eye_up_point = features.coordinates_center_line(shape[left_point_up_eye],shape[right_point_up_eye]) # находим координаты центра отрезка между крайними точками правой брови
+    center_eye_down_point = features.coordinates_center_line(shape[left_point_down_eye],shape[right_point_down_eye])
+    height_eye = features.face_features_length(center_eye_up_point, center_eye_down_point)
+
+    return height_eye
 
 def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point):
     print("Eyebrow horizontal length")
@@ -247,7 +262,7 @@ def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point
     eyebrow_variables = [s,b]
 
     print("Eyebrow coefficient _________")
-    return s
+    return eyebrow_variables
 
 def eyebrow(shape):
 
@@ -257,10 +272,27 @@ def eyebrow(shape):
 
     with open('face-features.json') as json_file:  
         data = json.load(json_file)
-        for p in data['Face']['Eyebrows']:
+        for p in data['Face']['Eyebrows']['General']:
+            if eyebrow_type[0] >= float(p['rate_min']) and eyebrow_type[0] <= float(p['rate_max']) and eyebrow_type[1] >= float(p['relation_min']) and eyebrow_type[1] <= float(p['relation_max']):
+                print('Описание: ' + p['description'])
+                break
 
+    height_left_eyebrow = height_eyebrow(shape, 17,21,37)
+    height_right_eyebrow = height_eyebrow(shape, 22,26,44)
+            
+    eyebrow_height = (height_left_eyebrow + height_right_eyebrow) / 2
 
+    height_left_eye = height_eye(shape, 37,38,40,41)
+    height_right_eye = height_eye(shape, 43,44,47,46)
+            
+    eye_height = (height_left_eye + height_right_eye) / 2
 
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        if eyebrow_height > eye_height:
+            print(data['Face']['Eyebrows']['Height'][0]['description'])
+        else:
+            print(data['Face']['Eyebrows']['Height'][1]['description'])
 
 
 
@@ -298,10 +330,10 @@ def mouth(shape):
     # определяем размеры рта и губ
 
     print("Mouth horizontal length")
-    mouth_lenght_horizontal = features.face_features_length(shape[48], shape[54])
+    mouth_length_horizontal = features.face_features_length(shape[48], shape[54])
     print("---------------------------")
     print("Mouth vertical length")
-    mouth_lenght_vertical = features.face_features_length(shape[51], shape[57])
+    mouth_length_vertical = features.face_features_length(shape[51], shape[57])
     print("---------------------------")
     print("Lips1 vertical length")
     lip1_vertical_length  = features.face_features_length(shape[51], shape[62])
@@ -309,18 +341,58 @@ def mouth(shape):
     print("Lips2 vertical length")
     lip2_vertical_length = features.face_features_length(shape[66], shape[57])
     print("---------------------------")
+    length_nose_chin = features.face_features_length(shape[33], shape[8])
 
+    length_nose_center_lip = features.face_features_length(shape[33], shape[62])
+    length_chip_center_lip = features.face_features_length(shape[8], shape[66])
+    print("length_nose_chin")
+    print(length_chip_center_lip / length_nose_center_lip)
     # форма лица -----------------------------------------------------
-    cw1 = features.face_features_length(shape[2], shape[14])
+    cw1 = features.face_features_length(shape[3], shape[13])
     cw2 = features.face_features_length(shape[4], shape[12])
     print("---------------------------")
 
     dcw = (cw1 + cw2) / 2
+    sdf = dcw / mouth_length_horizontal
 
-    sdf = dcw / mouth_lenght_horizontal
+    min_length = 0
+    mouth_list = {}
 
-    print("ertjyjtyjkyrtuktk")
-    
+    print("Губы")
+    dm = (cw1+cw2) / 2  # среднее расстояние в районе губ
+    delm = dm / 9 
+    print(dm)
+
+    delmm = delm
+    it = 1
+
+    while delmm <= dm:
+        mouth = abs(delmm - mouth_length_horizontal)
+        mouth_list[it] = mouth
+        delmm += delm
+        it += 1
+
+    print(min(mouth_list.values()))
+
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        for p in data['Face']['Mouth']['General']:
+
+
+            if min(mouth_list, key=mouth_list.get) <= int(p['rate_max']) and min(mouth_list, key=mouth_list.get) >= int(p['rate_min']):
+                print('Описание: ' + p['description'])
+
+        if  lip1_vertical_length > lip2_vertical_length * 1.3:
+            print(data['Face']['Mouth']['Height_lip'][0]['description'])
+        if  lip2_vertical_length > lip1_vertical_length * 1.3:
+            print(data['Face']['Mouth']['Height_lip'][1]['description'])
+        if  (length_nose_center_lip) < (length_nose_chin / 3) * 0.95:
+            print(data['Face']['Mouth']['Height_lip_nose'][0]['description'])
+        else:
+             if  (length_nose_center_lip) > (length_nose_chin / 3):
+                   print(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
+           
+
 
 # цикл по распознаванию лиц
 for (i, rect) in enumerate(rects):
@@ -337,47 +409,16 @@ m1 = features.face_features_length(shape[2], shape[14])
 features.face_features_length(shape[3], shape[13])
 m2 = features.face_features_length(shape[4], shape[12])
 print("---------------------------")
-print("Eyebrow lenght")
+print("Eyebrow length")
 features.face_features_length(shape[21], shape[22])
 print("---------------------------")
-print("Eye lenght")
+print("Eye length")
 features.face_features_length(shape[39], shape[42])
 print("---------------------------")
 
 
 
-min_lenght = 0
-mouth_list = {}
 
-#print("Губы")
-#dm = (m1+m2) / 2  # среднее расстояние в районе губ
-#delm = dm / 9 
-#print(dm)
-
-#delmm = delm
-#it = 1
-
-#while delmm <= dm:
-#    mouth = abs(delmm - mouth_lenght)
-#    mouth_list[it] = mouth
-#    delmm += delm
-#    it += 1
-
-
-
-
-
-#print(min(mouth_list.values()))
-
-#with open('face-features.json') as json_file:  
-#    data = json.load(json_file)
-#    for p in data['Face']['Mouth']:
-
-
-#     #   if mouth_list[min(mouth_list.values())].keys() >= int(p['rate_max']) and mouth_list[min(mouth_list.values())].keys() <= int(p['rate_min']):
-
-#     if min(mouth_list, key=mouth_list.get) <= int(p['rate_max']) and min(mouth_list, key=mouth_list.get) >= int(p['rate_min']):
-#            print('Описание: ' + p['description'])
 
 eyebrow(shape)
 nose(shape)
