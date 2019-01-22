@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image9.jpg')
+image = cv2.imread('../PhiZ/images/image.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -407,8 +407,10 @@ def mouth(shape):
         else:
              if  (length_nose_center_lip) > (length_nose_chin / 3):
                    print(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
-           
-
+        if  (mouth_length_vertical / mouth_length_horizontal) < 0.2:
+            print(data['Face']['Mouth']['Height_lip_nose'][2]['description'])
+        if  (mouth_length_vertical / mouth_length_horizontal) > 0.4:
+            print(data['Face']['Mouth']['Height_lip_nose'][3]['description'])
 
 # цикл по распознаванию лиц
 for (i, rect) in enumerate(rects):
