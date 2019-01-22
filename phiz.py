@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image.jpg')
+image = cv2.imread('../PhiZ/images/image17.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -309,6 +309,10 @@ def nose(shape):
     coordinates_point_nose_left.append(int(round(shape[31][0] - (shape[32][0] - shape[31][0]))))
     coordinates_point_nose_left.append(cn[1])
 
+    length_nose = features.face_features_length(shape[27], shape[33])
+    length_center_eyebrows_chip = features.face_features_length(shape[27], shape[8])
+    width_nose = features.face_features_length(coordinates_point_nose_left, coordinates_point_nose_rigth)
+
     nose_length_horizontal = features.face_features_length(coordinates_point_nose_left, coordinates_point_nose_rigth)
     print("---------------------------")
     print("length between nose and center of mouth")
@@ -318,11 +322,25 @@ def nose(shape):
     print("Calculated Nose width coefficient")
 
     nose_coefficient = nose_length_horizontal / point_center_mouth
-
     nose_coefficient = nose_coefficient - (nose_coefficient * 0.09) 
 
     print(nose_coefficient)
 
+
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        if (length_nose / length_center_eyebrows_chip) > 0.6:
+            print(data['Face']['Nose']['Nose_length'][1]['description'])
+        elif (length_nose / length_center_eyebrows_chip) > 0.5:
+            print(data['Face']['Nose']['Nose_length'][0]['description'])
+        elif (length_nose / length_center_eyebrows_chip) < 0.4:
+            print(data['Face']['Nose']['Nose_length'][0]['description'])
+        if (width_nose / length_nose) < 0.7 :
+            print(data['Face']['Nose']['Nose_width'][0]['description'])
+        elif (width_nose / length_nose) > 0.95 :
+            print(data['Face']['Nose']['Nose_width'][2]['description'])
+        elif (width_nose / length_nose) > 0.85 :
+            print(data['Face']['Nose']['Nose_width'][1]['description'])
 
 def chip(shape):
     cw1 = features.face_features_length(shape[0], shape[16])
@@ -432,12 +450,9 @@ features.face_features_length(shape[21], shape[22])
 print("---------------------------")
 print("Eye length")
 features.face_features_length(shape[39], shape[42])
+
+
 print("---------------------------")
-
-
-
-
-
 eyebrow(shape)
 nose(shape)
 mouth(shape)
