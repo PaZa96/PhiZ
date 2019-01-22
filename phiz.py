@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image8.jpg')
+image = cv2.imread('../PhiZ/images/image9.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -323,7 +323,23 @@ def nose(shape):
 
     print(nose_coefficient)
 
-    
+
+def chip(shape):
+    cw1 = features.face_features_length(shape[0], shape[16])
+    cw2 = features.face_features_length(shape[2], shape[14])
+    cw3 = features.face_features_length(shape[4], shape[12])
+
+    print('Chip')
+
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        for p in data['Face']['Chip']:
+            if cw3 * 1.2 > cw1:
+                print(data['Face']['Chip'][0]['description'])
+                break
+            elif (cw3 / cw1) < 0.7:
+                print(data['Face']['Chip'][1]['description'])
+                break
 
 def mouth(shape):
 
@@ -423,7 +439,7 @@ print("---------------------------")
 eyebrow(shape)
 nose(shape)
 mouth(shape)
-
+chip(shape)
 
 output = visualize_facial_landmarks(image, shape)
 cv2.imshow("Image", output)
