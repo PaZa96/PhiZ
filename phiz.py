@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image17.jpg')
+image = cv2.imread('../PhiZ/images/image29.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -211,20 +211,12 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 rects = detector(gray, 1)
 
 
-def height_eyebrow(shape, left_point, right_point, point_eye):
+def height_eyesbrow(shape, left_point, right_point, point_eye):
 
     center_eyebrow_point = features.coordinates_center_line(shape[left_point],shape[right_point]) # находим координаты центра отрезка между крайними точками правой брови
     height = features.face_features_length(center_eyebrow_point, shape[point_eye])
 
     return height
-
-def height_eye(shape, left_point_up_eye, right_point_up_eye, left_point_down_eye, right_point_down_eye):
-
-    center_eye_up_point = features.coordinates_center_line(shape[left_point_up_eye],shape[right_point_up_eye]) # находим координаты центра отрезка между крайними точками правой брови
-    center_eye_down_point = features.coordinates_center_line(shape[left_point_down_eye],shape[right_point_down_eye])
-    height_eye = features.face_features_length(center_eye_up_point, center_eye_down_point)
-
-    return height_eye
 
 def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point):
     print("Eyebrow horizontal length")
@@ -264,6 +256,10 @@ def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point
     print("Eyebrow coefficient _________")
     return eyebrow_variables
 
+
+
+
+
 def eyebrow(shape):
 
     eyebrow_type = type_eyebrow(shape, 17, 21, 22, 26)
@@ -277,13 +273,13 @@ def eyebrow(shape):
                 print('Описание: ' + p['description'])
                 break
 
-    height_left_eyebrow = height_eyebrow(shape, 17,21,37)
-    height_right_eyebrow = height_eyebrow(shape, 22,26,44)
+    height_left_eyebrow = height_eyesbrow(shape, 17,21,37)
+    height_right_eyebrow = height_eyesbrow(shape, 22,26,44)
             
     eyebrow_height = (height_left_eyebrow + height_right_eyebrow) / 2
 
-    height_left_eye = height_eye(shape, 37,38,40,41)
-    height_right_eye = height_eye(shape, 43,44,47,46)
+    height_left_eye = height_eyes(shape, 37,38,40,41)
+    height_right_eye = height_eyes(shape, 43,44,47,46)
             
     eye_height = (height_left_eye + height_right_eye) / 2
 
@@ -293,6 +289,48 @@ def eyebrow(shape):
             print(data['Face']['Eyebrows']['Height'][0]['description'])
         else:
             print(data['Face']['Eyebrows']['Height'][1]['description'])
+
+def height_eyes(shape, left_point_up_eye, right_point_up_eye, left_point_down_eye, right_point_down_eye):
+
+    center_eye_up_point = features.coordinates_center_line(shape[left_point_up_eye],shape[right_point_up_eye]) # находим координаты центра отрезка между крайними точками правой брови
+    center_eye_down_point = features.coordinates_center_line(shape[left_point_down_eye],shape[right_point_down_eye])
+    height_eyes = features.face_features_length(center_eye_up_point, center_eye_down_point)
+
+    return height_eyes
+
+def width_eyes(shape, left_point_l_eye, right_point_l_eye, left_point_r_eye, right_point_r_eye):
+
+    length_eye_l = features.face_features_length(shape[left_point_l_eye],shape[right_point_l_eye]) # находим координаты центра отрезка между крайними точками правой брови
+    length_eye_r = features.face_features_length(shape[left_point_r_eye],shape[right_point_r_eye])
+    width_eyes = (length_eye_l + length_eye_r) / 2
+
+    return width_eyes
+
+
+
+def eye(shape):
+
+    length_between_eyes_inside = features.face_features_length(shape[39],shape[42])
+    length_between_eyes_outside = features.face_features_length(shape[36],shape[45])
+    eyes_width = width_eyes(shape, 36,39, 42,45)
+    left_eye_nose = abs(shape[27][1]-shape[39][1])
+    right_eye_nose = abs(shape[27][1]-shape[42][1])
+
+    pointC = []
+
+    eye_angle = features.line_angle(shape, 39, 36, 36)
+
+    with open('face-features.json') as json_file:  
+        data = json.load(json_file)
+        if eyes_width >= length_between_eyes_inside:
+            print(data['Face']['Eye']['Length_between_eye'][0]['description'])
+        else :
+            print(data['Face']['Eye']['Length_between_eye'][1]['description'])
+        if abs(left_eye_nose - right_eye_nose) >= 3:
+            print(data['Face']['Eye']['Eyes_angle'][0]['description'])
+
+    print("Eye")
+    print(left_eye_nose)
 
 
 
@@ -454,6 +492,7 @@ features.face_features_length(shape[39], shape[42])
 
 print("---------------------------")
 eyebrow(shape)
+eye(shape)
 nose(shape)
 mouth(shape)
 chip(shape)
