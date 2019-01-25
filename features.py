@@ -60,3 +60,12 @@ def line_angle(shape, pointA, pointB, pointC):
         print("Angle")
     print (angles) 
     print (sum(angles)) 
+
+def distance_line_to_point(shape, pointA, pointB, point):
+
+    numerator = abs(((shape[pointB][1] - shape[pointA][1])* shape[point][0]) - ((shape[pointB][0] - shape[pointA][0])* shape[point][1]) + (shape[pointB][0] * shape[pointA][1]) - (shape[pointB][1] * shape[pointA][0]))
+    denumerator = math.sqrt(((shape[pointB][1] - shape[pointA][1])**2) + ((shape[pointB][0] - shape[pointA][0])**2))
+
+    distance = numerator / denumerator
+
+    return distance

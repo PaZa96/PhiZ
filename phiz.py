@@ -202,7 +202,7 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
 
 # load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image29.jpg')
+image = cv2.imread('../PhiZ/images/image5.jpg')
 image = imutils.resize(image, width=500)
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -320,6 +320,14 @@ def eye(shape):
 
     eye_angle = features.line_angle(shape, 39, 36, 36)
 
+    left_eye_inside = features.distance_line_to_point(shape, 0, 16, 39)
+    left_eye_outside = features.distance_line_to_point(shape, 0, 16, 36)
+    right_eye_inside = features.distance_line_to_point(shape, 0, 16, 42)
+    right_eye_outside = features.distance_line_to_point(shape, 0, 16, 45)
+
+    eye_inside = (left_eye_inside + right_eye_inside) / 2
+    eye_outside = (left_eye_outside + right_eye_outside) / 2
+
     with open('face-features.json') as json_file:  
         data = json.load(json_file)
         if eyes_width >= length_between_eyes_inside:
@@ -328,9 +336,15 @@ def eye(shape):
             print(data['Face']['Eye']['Length_between_eye'][1]['description'])
         if abs(left_eye_nose - right_eye_nose) >= 3:
             print(data['Face']['Eye']['Eyes_angle'][0]['description'])
+        if eye_inside > eye_outside:
+            print(data['Face']['Eye']['Eyes_angle'][1]['description'])
+        else:
+            print(data['Face']['Eye']['Eyes_angle'][2]['description'])
 
     print("Eye")
     print(left_eye_nose)
+
+    
 
 
 
