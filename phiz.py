@@ -12,7 +12,7 @@ import json
 import features
 
 facial_features_cordinates = {}
-
+shape = {}
 
 # определить словарь, который отображает индексы лица
 # ориентиры для определенных областей лица
@@ -51,7 +51,7 @@ def shape_to_numpy_array(shape, dtype="int"):
     return coordinates
 
 
-def draw_face_line(point_one, point_two, overlay, pts): 
+def draw_face_line(shape, point_one, point_two, overlay, pts): 
 
     for l in range(0, len(pts)):
         ptA = tuple(shape[point_one])
@@ -59,7 +59,7 @@ def draw_face_line(point_one, point_two, overlay, pts):
         cv2.line(overlay, ptA, ptB, (255, 0, 255), 1)
 
 
-def draw_face_features(facial_features_name, overlay): 
+def draw_face_features(facial_features_name, overlay, shape): 
      # цикл по областям лицевой ориентир индивидуально
     for (i, name) in enumerate(FACIAL_LANDMARKS_INDEXES.keys()):
      
@@ -149,11 +149,11 @@ def draw_face_features(facial_features_name, overlay):
 
 # форма лица -----------------------------------------------------
 
-    draw_face_line(0, 16, overlay, pts)
-    draw_face_line(2, 14, overlay, pts)
-    draw_face_line(3, 13, overlay, pts)
-    draw_face_line(4, 12, overlay, pts)
-    draw_face_line(17, 21, overlay, pts)
+    draw_face_line(shape, 0, 16, overlay, pts)
+    draw_face_line(shape, 2, 14, overlay, pts)
+    draw_face_line(shape, 3, 13, overlay, pts)
+    draw_face_line(shape, 4, 12, overlay, pts)
+    draw_face_line(shape, 17, 21, overlay, pts)
 
 
    
@@ -171,13 +171,13 @@ def visualize_facial_landmarks(image, shape, colors=None, alpha=0.75):
 
  
         
-    draw_face_features("Jaw", overlay)
-    draw_face_features("Nose", overlay)
-    draw_face_features("Mouth", overlay)
-    draw_face_features("Right_Eyebrow", overlay)
-    draw_face_features("Left_Eyebrow", overlay)
-    draw_face_features("Right_Eye", overlay)
-    draw_face_features("Left_Eye", overlay, )
+    draw_face_features("Jaw", overlay, shape)
+    draw_face_features("Nose", overlay, shape)
+    draw_face_features("Mouth", overlay, shape)
+    draw_face_features("Right_Eyebrow", overlay, shape)
+    draw_face_features("Left_Eyebrow", overlay, shape)
+    draw_face_features("Right_Eye", overlay, shape)
+    draw_face_features("Left_Eye", overlay, shape)
         
      
     
@@ -193,22 +193,7 @@ def visualize_facial_landmarks(image, shape, colors=None, alpha=0.75):
 
 
 
-# инициализировать детектор лица dlib (на основе HOG), а затем создать
-# предиктор ориентир лица
 
-
-detector = dlib.get_frontal_face_detector()
-
-predictor = dlib.shape_predictor('../PhiZ/shape_predictor_68_face_landmarks.dat')
-
-# load the input image, resize it, and convert it to grayscale
-image = cv2.imread('../PhiZ/images/image5.jpg')
-image = imutils.resize(image, width=500)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-
-# обнаружение лиц на изображении в градациях серого
-rects = detector(gray, 1)
 
 
 def height_eyesbrow(shape, left_point, right_point, point_eye):
@@ -262,6 +247,7 @@ def type_eyebrow(shape, l_left_point, l_right_point, r_left_point, r_right_point
 
 def eyebrow(shape):
 
+    output = []
     eyebrow_type = type_eyebrow(shape, 17, 21, 22, 26)
     print("Left eyebrow coefficient")
     print(eyebrow_type)
@@ -271,6 +257,7 @@ def eyebrow(shape):
         for p in data['Face']['Eyebrows']['General']:
             if eyebrow_type[0] >= float(p['rate_min']) and eyebrow_type[0] <= float(p['rate_max']) and eyebrow_type[1] >= float(p['relation_min']) and eyebrow_type[1] <= float(p['relation_max']):
                 print('Описание: ' + p['description'])
+                output.append(p['description'])
                 break
 
     height_left_eyebrow = height_eyesbrow(shape, 17,21,37)
@@ -286,9 +273,12 @@ def eyebrow(shape):
     with open('face-features.json') as json_file:  
         data = json.load(json_file)
         if eyebrow_height > eye_height:
+            output.append(data['Face']['Eyebrows']['Height'][0]['description'])
             print(data['Face']['Eyebrows']['Height'][0]['description'])
         else:
+            output.append(data['Face']['Eyebrows']['Height'][1]['description'])
             print(data['Face']['Eyebrows']['Height'][1]['description'])
+    return output
 
 def height_eyes(shape, left_point_up_eye, right_point_up_eye, left_point_down_eye, right_point_down_eye):
 
@@ -310,6 +300,7 @@ def width_eyes(shape, left_point_l_eye, right_point_l_eye, left_point_r_eye, rig
 
 def eye(shape):
 
+    output = []
     length_between_eyes_inside = features.face_features_length(shape[39],shape[42])
     length_between_eyes_outside = features.face_features_length(shape[36],shape[45])
     eyes_width = width_eyes(shape, 36,39, 42,45)
@@ -331,27 +322,32 @@ def eye(shape):
     with open('face-features.json') as json_file:  
         data = json.load(json_file)
         if eyes_width >= length_between_eyes_inside:
+            output.append(data['Face']['Eye']['Length_between_eye'][0]['description'])
             print(data['Face']['Eye']['Length_between_eye'][0]['description'])
         else :
+            output.append(data['Face']['Eye']['Length_between_eye'][1]['description'])
             print(data['Face']['Eye']['Length_between_eye'][1]['description'])
         if abs(left_eye_nose - right_eye_nose) >= 3:
+            output.append(data['Face']['Eye']['Eyes_angle'][0]['description'])
             print(data['Face']['Eye']['Eyes_angle'][0]['description'])
         if eye_inside > eye_outside:
+            output.append(data['Face']['Eye']['Eyes_angle'][1]['description'])
             print(data['Face']['Eye']['Eyes_angle'][1]['description'])
         else:
+            output.append(data['Face']['Eye']['Eyes_angle'][2]['description'])
             print(data['Face']['Eye']['Eyes_angle'][2]['description'])
 
     print("Eye")
     print(left_eye_nose)
 
-    
+    return output
 
 
 
 def nose(shape):
 
     print("Nose horizontal length")
-
+    output = []
     coordinates_point_nose_rigth = []
     coordinates_point_nose_left = []
     cn = features.coordinates_center_line(shape[30],features.coordinates_center_line(shape[31], shape[35])) 
@@ -382,22 +378,30 @@ def nose(shape):
     with open('face-features.json') as json_file:  
         data = json.load(json_file)
         if (length_nose / length_center_eyebrows_chip) > 0.6:
+            output.append(data['Face']['Nose']['Nose_length'][1]['description'])
             print(data['Face']['Nose']['Nose_length'][1]['description'])
         elif (length_nose / length_center_eyebrows_chip) > 0.5:
+            output.append(data['Face']['Nose']['Nose_length'][0]['description'])
             print(data['Face']['Nose']['Nose_length'][0]['description'])
         elif (length_nose / length_center_eyebrows_chip) < 0.4:
+            output.append(data['Face']['Nose']['Nose_length'][0]['description'])
             print(data['Face']['Nose']['Nose_length'][0]['description'])
         if (width_nose / length_nose) < 0.7 :
+            output.append(data['Face']['Nose']['Nose_width'][0]['description'])
             print(data['Face']['Nose']['Nose_width'][0]['description'])
         elif (width_nose / length_nose) > 0.95 :
+            output.append(data['Face']['Nose']['Nose_width'][2]['description'])
             print(data['Face']['Nose']['Nose_width'][2]['description'])
         elif (width_nose / length_nose) > 0.85 :
+            output.append(data['Face']['Nose']['Nose_width'][1]['description'])
             print(data['Face']['Nose']['Nose_width'][1]['description'])
+    return output
 
 def chip(shape):
     cw1 = features.face_features_length(shape[0], shape[16])
     cw2 = features.face_features_length(shape[2], shape[14])
     cw3 = features.face_features_length(shape[4], shape[12])
+    output = []
 
     print('Chip')
 
@@ -405,16 +409,19 @@ def chip(shape):
         data = json.load(json_file)
         for p in data['Face']['Chip']:
             if cw3 * 1.2 > cw1:
+                output.append(data['Face']['Chip'][0]['description'])
                 print(data['Face']['Chip'][0]['description'])
                 break
             elif (cw3 / cw1) < 0.7:
+                output.append(data['Face']['Chip'][1]['description'])
                 print(data['Face']['Chip'][1]['description'])
                 break
+    return output
 
 def mouth(shape):
 
     # определяем размеры рта и губ
-
+    output = []
     print("Mouth horizontal length")
     mouth_length_horizontal = features.face_features_length(shape[48], shape[54])
     print("---------------------------")
@@ -466,51 +473,30 @@ def mouth(shape):
 
 
             if min(mouth_list, key=mouth_list.get) <= int(p['rate_max']) and min(mouth_list, key=mouth_list.get) >= int(p['rate_min']):
+                output.append(p['description'])
                 print('Описание: ' + p['description'])
 
         if  lip1_vertical_length > lip2_vertical_length * 1.3:
+            output.append(data['Face']['Mouth']['Height_lip'][0]['description'])
             print(data['Face']['Mouth']['Height_lip'][0]['description'])
         if  lip2_vertical_length > lip1_vertical_length * 1.3:
+            output.append(data['Face']['Mouth']['Height_lip'][1]['description'])
             print(data['Face']['Mouth']['Height_lip'][1]['description'])
         if  (length_nose_center_lip) < (length_nose_chin / 3) * 0.95:
+            output.append(data['Face']['Mouth']['Height_lip_nose'][0]['description'])
             print(data['Face']['Mouth']['Height_lip_nose'][0]['description'])
         else:
              if  (length_nose_center_lip) > (length_nose_chin / 3):
-                   print(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
+                 output.append(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
+                 print(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
         if  (mouth_length_vertical / mouth_length_horizontal) < 0.2:
+            output.append(data['Face']['Mouth']['Height_lip_nose'][2]['description'])
             print(data['Face']['Mouth']['Height_lip_nose'][2]['description'])
         if  (mouth_length_vertical / mouth_length_horizontal) > 0.4:
+            output.append(data['Face']['Mouth']['Height_lip_nose'][1]['description'])
             print(data['Face']['Mouth']['Height_lip_nose'][3]['description'])
 
-# цикл по распознаванию лиц
-for (i, rect) in enumerate(rects):
-   
-    # определить ориентиры лица для области лица, затем
-    # преобразовать координаты ориентира (x, y) в массив NumPy
-    shape = predictor(gray, rect)
-    shape = shape_to_numpy_array(shape)
-
-# форма лица -----------------------------------------------------
-print("face form")
-features.face_features_length(shape[0], shape[16])
-m1 = features.face_features_length(shape[2], shape[14])
-features.face_features_length(shape[3], shape[13])
-m2 = features.face_features_length(shape[4], shape[12])
-print("---------------------------")
-print("Eyebrow length")
-features.face_features_length(shape[21], shape[22])
-print("---------------------------")
-print("Eye length")
-features.face_features_length(shape[39], shape[42])
+    return output
 
 
-print("---------------------------")
-eyebrow(shape)
-eye(shape)
-nose(shape)
-mouth(shape)
-chip(shape)
 
-output = visualize_facial_landmarks(image, shape)
-cv2.imshow("Image", output)
-cv2.waitKey(0)

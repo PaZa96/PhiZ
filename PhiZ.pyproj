@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{b71c2eab-967f-45d4-ac1c-9eec654952aa}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>phiz.py</StartupFile>
+    <StartupFile>gui.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -20,26 +20,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="features.py" />
+    <Compile Include="gui.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="phiz.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="face-features.json" />
-    <Content Include="images\image.jpg" />
-    <Content Include="images\image1.jpg" />
-    <Content Include="images\image10.jpg" />
-    <Content Include="images\image11.jpg" />
-    <Content Include="images\image12.jpg" />
-    <Content Include="images\image13.jpg" />
-    <Content Include="images\image14.jpg" />
-    <Content Include="images\image15.jpg" />
-    <Content Include="images\image2.jpg" />
-    <Content Include="images\image3.jpg" />
-    <Content Include="images\image4.jpg" />
-    <Content Include="images\image5.jpg" />
-    <Content Include="images\image6.jpg" />
-    <Content Include="images\image7.jpg" />
-    <Content Include="images\image8.jpg" />
-    <Content Include="images\image9.jpg" />
+    <Content Include="images\noimage.png" />
     <Content Include="shape_predictor_68_face_landmarks.dat" />
   </ItemGroup>
   <ItemGroup>
